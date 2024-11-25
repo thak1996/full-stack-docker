@@ -1,24 +1,15 @@
-import React, { useState, useEffect } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React from "react";
+import GlobalStyles from "./styles/GlobalStyles";
+import { AppProvider } from "./context/AppContext";
+import HomePage from "./pages/Home/HomePage";
 
-function App() {
-    const [message, setMessage] = useState<string>("");
-
-    useEffect(() => {
-        fetch("http://localhost:3001/home")
-            .then((res) => res.json())
-            .then((data) => setMessage(data.message));
-    }, []);
-
+const App: React.FC = () => {
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>{message}</p>
-            </header>
-        </div>
+        <AppProvider>
+            <GlobalStyles />
+            <HomePage />
+        </AppProvider>
     );
-}
+};
 
 export default App;
