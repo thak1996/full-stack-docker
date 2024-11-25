@@ -4,6 +4,8 @@ backend/node_modules
 frontend/.env
 backend/.env
 
+.env
+
 frontend/.pnp
 frontend/.pnp.js
 
