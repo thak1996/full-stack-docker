@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import apiService from "../../services/apiService";
 import TransportServiceForm from "../../components/TransportServiceForm";
+import styled from "styled-components";
+
+const CenteredContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+`;
 
 const HomePage: React.FC = () => {
     const [message, setMessage] = useState<string>("");
@@ -35,10 +43,11 @@ const HomePage: React.FC = () => {
     }
 
     return (
-        <div>
+        <CenteredContainer>
             <TransportServiceForm />
-        </div>
+        </CenteredContainer>
     );
 };
 
 export default HomePage;
+    

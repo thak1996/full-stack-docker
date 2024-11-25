@@ -11,6 +11,9 @@ services:
         restart: always
         networks:
             - web-net
+        volumes:
+            - ./frontend/src:/frontend/src
+            - /frontend/node_modules
     backend:
         container_name: app_backend
         build: ./backend
@@ -21,6 +24,9 @@ services:
         restart: always
         networks:
             - web-net
+        volumes:
+            - ./backend/src:/backend/src
+            - /backend/node_modules
 
 volumes:
     data: {}
