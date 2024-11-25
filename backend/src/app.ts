@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import homeRoutes from "./routes/homeRoutes";
+import testRoutes from "./routes/testRoutes";
 
 class App {
     public app: express.Application;
@@ -18,6 +19,7 @@ class App {
 
     private routes(): void {
         this.app.use("/home", homeRoutes);
+        this.app.use("/", testRoutes);
     }
 
     public start(port: number): void {

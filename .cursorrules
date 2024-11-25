@@ -1,6 +1,3 @@
-// React Native Expo .cursorrules
-
-// React Native Expo best practices
 const reactNativeExpoBestPractices = [
     "Use functional components with hooks",
     "Utilize Expo SDK features and APIs",
@@ -10,10 +7,9 @@ const reactNativeExpoBestPractices = [
     "Utilize Expo's push notification system"
 ];
 
-
 const useTypeScript = true;
+const preferFunctionalComponents = true;
 
-// Redux best practices
 const reduxBestPractices = [
     "Use Redux Toolkit for efficient Redux development",
     "Implement slice pattern for organizing Redux code",
@@ -21,21 +17,14 @@ const reduxBestPractices = [
     "Use selectors for accessing state in components"
 ];
 
-// React + Styled Components .cursorrules
-
-// Prefer functional components with hooks
-const preferFunctionalComponents = true;
-
-// Styled Components best practices
 const styledComponentsBestPractices = [
-  "Use the styled-components/macro for better debugging",
-  "Implement a global theme using ThemeProvider",
-  "Create reusable styled components",
-  "Use props for dynamic styling",
-  "Utilize CSS helper functions like css`` when needed",
+    "Use the styled-components/macro for better debugging",
+    "Implement a global theme using ThemeProvider",
+    "Create reusable styled components",
+    "Use props for dynamic styling",
+    "Utilize CSS helper functions like css`` when needed"
 ];
 
-// Folder structure
 const folderStructure = `
 src/
   components/
@@ -47,7 +36,6 @@ src/
   utils/
 `;
 
-// Additional instructions
 const additionalInstructions = `
 1. Use proper naming conventions for styled components (e.g., StyledButton)
 2. Implement a consistent theming system

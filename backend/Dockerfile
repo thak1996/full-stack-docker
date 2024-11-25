@@ -10,6 +10,8 @@ RUN npm install
 
 COPY . .
 
+RUN chmod -R 755 /backend
+
 RUN npx tsc
 
 CMD ["node", "dist/index.js"]

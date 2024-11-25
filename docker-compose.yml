@@ -3,7 +3,9 @@ services:
         container_name: app_frontend
         build: ./frontend
         ports:
-            - 3000:3000
+            - ${FRONTEND_PORT}:3000
+        env_file:
+            - .env
         platform: linux/x86_64
         working_dir: /frontend
         depends_on:
@@ -18,7 +20,9 @@ services:
         container_name: app_backend
         build: ./backend
         ports:
-            - 3001:3001
+            - ${BACKEND_PORT}:3001
+        env_file:
+            - .env
         platform: linux/x86_64
         working_dir: /backend
         restart: always
@@ -27,9 +31,28 @@ services:
         volumes:
             - ./backend/src:/backend/src
             - /backend/node_modules
+        environment:
+            - DB_HOST=mysql
+            - DB_USER=root
+            - DB_PASSWORD=root
+            - DB_NAME=app_db
+    mysql:
+        image: mysql:latest
+        container_name: app_mysql
+        restart: always
+        networks:
+            - web-net
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: app_db
+        volumes:
+            - mysql_data:/var/lib/mysql
+        ports:
+            - ${MYSQL_PORT}:3306
 
 volumes:
     data: {}
+    mysql_data: {}
 networks:
     web-net:
         name: web-net
