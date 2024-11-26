@@ -16,6 +16,12 @@ class App {
     private config(): void {
         this.app.use(cors());
         this.app.use(express.json());
+
+        this.app.use((req, res, next) => {
+            const currentTime = new Date().toISOString();
+            console.log(`[${currentTime}] ${req.method} ${req.originalUrl}`);
+            next();
+        });
     }
 
     private routes(): void {

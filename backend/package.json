@@ -9,6 +9,7 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
+        "@react-google-maps/api": "^2.20.3",
         "axios": "^1.7.8",
         "body-parser": "^1.20.3",
         "cors": "^2.8.5",
@@ -22,6 +23,7 @@
         "@types/body-parser": "^1.19.5",
         "@types/cors": "^2.8.17",
         "@types/express": "^5.0.0",
+        "@types/google.maps": "^3.58.1",
         "@types/node": "^22.9.3",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",
