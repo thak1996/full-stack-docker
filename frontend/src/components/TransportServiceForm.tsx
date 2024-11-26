@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RideEstimateRequest } from "../interface/rideEstimate";
 import {
     ErrorMessage,
@@ -24,9 +24,68 @@ const TransportServiceForm: React.FC<TransportServiceFormProps> = ({
     });
     const [error, setError] = useState<string>("");
 
+    useEffect(() => {
+        const originInput = document.getElementById(
+            "origin"
+        ) as HTMLInputElement;
+        const destinationInput = document.getElementById(
+            "destination"
+        ) as HTMLInputElement;
+
+        const initAutocomplete = () => {
+            if (originInput && destinationInput && (window as any).google) {
+                const autocompleteOrigin = new (
+                    window as any
+                ).google.maps.places.Autocomplete(originInput);
+                const autocompleteDestination = new (
+                    window as any
+                ).google.maps.places.Autocomplete(destinationInput);
+
+                autocompleteOrigin.addListener("place_changed", () => {
+                    const place = autocompleteOrigin.getPlace();
+                    if (place && place.formatted_address) {
+                        setFormData((prev) => ({
+                            ...prev,
+                            origin: place.formatted_address
+                        }));
+                    }
+                });
+
+                autocompleteDestination.addListener("place_changed", () => {
+                    const place = autocompleteDestination.getPlace();
+                    if (place && place.formatted_address) {
+                        setFormData((prev) => ({
+                            ...prev,
+                            destination: place.formatted_address
+                        }));
+                    }
+                });
+            } else {
+                console.error("Google Maps API not loaded.");
+            }
+        };
+
+        const checkGoogleMapsAPI = setInterval(() => {
+            if ((window as any).google) {
+                clearInterval(checkGoogleMapsAPI);
+                initAutocomplete();
+            }
+        }, 100);
+
+        return () => clearInterval(checkGoogleMapsAPI);
+    }, []);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+
+        if (name === "origin" || name === "destination") {
+            if (value.length >= 4) {
+                console.log("Autocompletar ativado para:", value);
+            } else {
+                console.log("Autocompletar desativado.");
+            }
+        }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -63,6 +122,7 @@ const TransportServiceForm: React.FC<TransportServiceFormProps> = ({
                 <FormGroup>
                     <Label>Origem:</Label>
                     <Input
+                        id="origin"
                         type="text"
                         name="origin"
                         value={formData.origin}
@@ -73,6 +133,7 @@ const TransportServiceForm: React.FC<TransportServiceFormProps> = ({
                 <FormGroup>
                     <Label>Destino:</Label>
                     <Input
+                        id="destination"
                         type="text"
                         name="destination"
                         value={formData.destination}

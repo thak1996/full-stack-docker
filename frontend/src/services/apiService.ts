@@ -16,13 +16,11 @@ const apiService = {
     },
     estimateRide: async (request: RideEstimateRequest) => {
         try {
-            console.log(request);
             const response = await api.post("/ride/estimate", {
                 origin: request.origin,
                 destination: request.destination,
                 customer_id: request.customer_id
             });
-            console.log(response.data);
             return response.data;
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response) {
