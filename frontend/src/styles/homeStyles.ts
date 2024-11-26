@@ -3,7 +3,8 @@ import styled from "styled-components";
 export const CenteredContainer = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: transparent;
 `;
