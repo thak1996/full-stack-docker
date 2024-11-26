@@ -3,8 +3,7 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "ts-node src/index.ts",
-        "seed": "ts-node src/seeds/motoristasSeeder.ts"
+        "start": "ts-node src/index.ts"
     },
     "author": "",
     "license": "ISC",

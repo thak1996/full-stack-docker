@@ -65,9 +65,9 @@ const seedDrivers = async () => {
                 console.error("Driver validation failed:", driver);
             }
         }
-        console.log("Motoristas seeded successfully!");
+        console.log("Drivers seeded successfully!");
     } catch (error) {
-        console.error("Error seeding motoristas:", error);
+        console.error("Error seeding drivers:", error);
     }
 };
 

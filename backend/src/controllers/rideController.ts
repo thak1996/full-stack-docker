@@ -23,8 +23,7 @@ class RideController {
 
     private async getAvailableDrivers(distance: number): Promise<Driver[]> {
         const [results]: [DriverRow[], any] = await pool.query<DriverRow[]>(
-            "SELECT * FROM drivers WHERE km_tax <= ?",
-            [distance / 1000]
+            "SELECT * FROM drivers"
         );
 
         return results
@@ -37,7 +36,7 @@ class RideController {
                     rating: driver.avaliation,
                     comment: driver.comment
                 },
-                value: (distance / 1000) * driver.value
+                value: (distance / 1000) * driver.km_tax
             }))
             .sort((a, b) => a.value - b.value);
     }
@@ -62,6 +61,12 @@ class RideController {
     ): Promise<GoogleMapsResponse> {
         console.log("Fetching route...");
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (!googleMapsApiKey) {
+            throw new Error(
+                "A chave da API do Google Maps (GOOGLE_MAPS_API_KEY) não está configurada."
+            );
+        }
+        console.log("Google Maps API Key:", googleMapsApiKey);
         const response = await axios.get<GoogleMapsResponse>(
             `https://maps.googleapis.com/maps/api/directions/json`,
             {
@@ -99,6 +104,13 @@ class RideController {
         try {
             const routeData = await this.fetchRoute(origin, destination);
             const { routes } = routeData;
+
+            if (routes.length === 0) {
+                throw new Error(
+                    "Nenhuma rota encontrada entre os pontos fornecidos."
+                );
+            }
+
             const { legs } = routes[0];
             const { distance, duration, start_location, end_location } =
                 legs[0];
@@ -119,18 +131,31 @@ class RideController {
                 distance: distance.value,
                 duration: duration.text,
                 options: availableDrivers,
-                routeResponse: routes[0]
+                routeResponse: {
+                    summary: routeData.routes[0].summary,
+                    distance: distance.value,
+                    duration: duration.text
+                }
             };
 
             console.log("Sending response:", responseBody);
             res.status(200).send(responseBody);
         } catch (error) {
-            console.error(error);
-            const errorResponse = this.createErrorResponse(
-                "SERVER_ERROR",
-                "Erro ao calcular a rota ou buscar motoristas."
-            );
-            res.status(500).send(errorResponse);
+            if (error instanceof Error) {
+                console.error("Erro ao buscar a rota:", error.message);
+                const errorResponse = this.createErrorResponse(
+                    "ROUTE_NOT_FOUND",
+                    "Nenhuma rota encontrada entre os pontos fornecidos."
+                );
+                res.status(404).send(errorResponse);
+            } else {
+                console.error("Erro desconhecido:", error);
+                const errorResponse = this.createErrorResponse(
+                    "SERVER_ERROR",
+                    "Erro interno ao processar a requisição."
+                );
+                res.status(500).send(errorResponse);
+            }
         }
     }
 }

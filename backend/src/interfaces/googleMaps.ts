@@ -1,5 +1,6 @@
 export interface GoogleMapsResponse {
     routes: Array<{
+        summary: string;
         legs: Array<{
             distance: {
                 value: number;
