@@ -36,6 +36,7 @@ services:
             - DB_USER=root
             - DB_PASSWORD=root
             - DB_NAME=app_db
+            - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
     mysql:
         image: mysql:latest
         container_name: app_mysql
