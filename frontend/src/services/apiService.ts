@@ -1,5 +1,6 @@
 import axios from "axios";
 import { RideEstimateRequest } from "../interface/rideEstimate";
+import { ApiError } from "../interface/apiError";
 
 const apiUrl = "http://localhost:8080/api/v1";
 
@@ -14,12 +15,31 @@ const apiService = {
         return response.data;
     },
     estimateRide: async (request: RideEstimateRequest) => {
-        const response = await api.post("/ride/estimate", {
-            origin: request.origin,
-            destination: request.destination,
-            customer_id: request.customer_id
-        });
-        return response.data;
+        try {
+            console.log(request);
+            const response = await api.post("/ride/estimate", {
+                origin: request.origin,
+                destination: request.destination,
+                customer_id: request.customer_id
+            });
+            console.log(response.data);
+            return response.data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response) {
+                const apiError: ApiError = error.response.data;
+                switch (apiError.error_code) {
+                    case "ROUTE_NOT_FOUND":
+                        throw new Error(apiError.error_description);
+                    default:
+                        throw new Error(
+                            apiError.error_description ||
+                                `Erro ao estimar a corrida: ${error.response.status}`
+                        );
+                }
+            } else {
+                throw new Error("Erro de rede ou a API não está acessível");
+            }
+        }
     }
 };
 

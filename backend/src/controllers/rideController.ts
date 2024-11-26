@@ -138,12 +138,11 @@ class RideController {
             res.status(200).send(responseBody);
         } catch (error) {
             if (error instanceof Error) {
-                console.error("Erro ao buscar a rota:", error.message);
                 const errorResponse = this.createErrorResponse(
                     "ROUTE_NOT_FOUND",
                     "Nenhuma rota encontrada entre os pontos fornecidos."
                 );
-                res.status(404).send(errorResponse);
+                res.status(400).send(errorResponse);
             } else {
                 console.error("Erro desconhecido:", error);
                 const errorResponse = this.createErrorResponse(
