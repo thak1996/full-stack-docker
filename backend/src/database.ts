@@ -10,24 +10,23 @@ const pool = mysql.createPool({
 const createDriversTable = async () => {
     const connection = await pool.getConnection();
     try {
+        await connection.query("DROP TABLE IF EXISTS drivers");
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS drivers (
+            CREATE TABLE drivers (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                descricao TEXT,
-                carro VARCHAR(255) NOT NULL,
-                avaliacao DECIMAL(2,1) NOT NULL,
-                taxa_km DECIMAL(10,2) NOT NULL
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                car VARCHAR(255) NOT NULL,
+                avaliation DECIMAL(2,1) NOT NULL,
+                km_tax DECIMAL(10,2) NOT NULL
             )
         `);
-        console.log("Tabela 'drivers' criada ou já existe.");
+        console.log("Table 'drivers' created successfully.");
     } catch (error) {
-        console.error("Erro ao criar a tabela 'drivers':", error);
+        console.error("Error creating the 'drivers' table:", error);
     } finally {
         connection.release();
     }
 };
 
-createDriversTable();
-
-export default pool;
+export { createDriversTable, pool };
