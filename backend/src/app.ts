@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import messageRoutes from "./routes/messageRoutes";
-import testRoutes from "./routes/testRoutes";
+import rideRoutes from "./routes/rideRoutes";
 
 class App {
     public app: express.Application;
@@ -20,7 +20,7 @@ class App {
 
     private routes(): void {
         this.app.use(`${this.apiPrefix}/message`, messageRoutes);
-        this.app.use(`${this.apiPrefix}/test`, testRoutes);
+        this.app.use(`${this.apiPrefix}/ride`, rideRoutes);
     }
 
     public start(port: number): void {
