@@ -23,6 +23,8 @@ services:
             - 8080:8080
         env_file:
             - .env
+        depends_on:
+            - mysql
         platform: linux/x86_64
         working_dir: /backend
         restart: always
