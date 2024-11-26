@@ -12,14 +12,16 @@ import Loading from "../components/Loading";
 const HomePage: React.FC = () => {
     const [rideInfo, setRideInfo] = useState<RideEstimateResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
 
     const handleEstimate = async (data: RideEstimateRequest) => {
+        console.log(data);
         setLoading(true);
-        setError("");
+        setError(null);
 
         try {
             const response = await apiService.estimateRide(data);
+            console.log(response);
             setRideInfo(response);
         } catch (error) {
             const errorMessage =
@@ -30,6 +32,11 @@ const HomePage: React.FC = () => {
         }
     };
 
+    const handleCloseError = () => {
+        setError(null);
+        window.history.back();
+    };
+
     if (loading) {
         return <Loading />;
     }
@@ -37,31 +44,7 @@ const HomePage: React.FC = () => {
     return (
         <CenteredContainer>
             <TransportServiceForm onEstimate={handleEstimate} />
-            {error && <Error message={error} />}
-            {rideInfo && (
-                <div>
-                    <h2>Informações da Corrida</h2>
-                    <p>
-                        Origem: {rideInfo.origin.latitude},{" "}
-                        {rideInfo.origin.longitude}
-                    </p>
-                    <p>
-                        Destino: {rideInfo.destination.latitude},{" "}
-                        {rideInfo.destination.longitude}
-                    </p>
-                    <p>Distância: {rideInfo.distance} metros</p>
-                    <p>Duração: {rideInfo.duration}</p>
-                    <h3>Motoristas Disponíveis:</h3>
-                    <ul>
-                        {rideInfo.options.map((driver) => (
-                            <li key={driver.id}>
-                                {driver.name} - {driver.vehicle} -{" "}
-                                {driver.description} - Custo: {driver.value}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+            {error && <Error message={error} onClose={handleCloseError} />}
         </CenteredContainer>
     );
 };
