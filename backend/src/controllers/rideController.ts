@@ -1,84 +1,136 @@
 import { Request, Response } from "express";
 import { pool } from "../database";
-import { Driver } from "../interfaces/driver";
 import { GoogleMapsResponse } from "../interfaces/googleMaps";
 import axios from "axios";
+import {
+    DriverRow,
+    Driver,
+    RideEstimateErrorResponse,
+    RideEstimateRequest,
+    RideEstimateResponse
+} from "../interfaces/rideInterfaces";
 
 class RideController {
-    public async estimate(req: Request, res: Response): Promise<void> {
-        const { origem, destino, userId } = req.body;
-        if (!origem || !destino) {
-            res.status(400).send({
-                error: "Origem e Destino não podem estar em branco."
-            });
-            return;
-        }
-        if (!userId) {
-            res.status(400).send({
-                error: "O ID do usuário não pode estar em branco."
-            });
-            return;
-        }
-        if (origem === destino) {
-            res.status(400).send({
-                error: "Origem e Destino não podem ser iguais."
-            });
-            return;
-        }
-        try {
-            const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-            const response = await axios.get<GoogleMapsResponse>(
-                `https://maps.googleapis.com/maps/api/directions/json`,
-                {
-                    params: {
-                        origin: origem,
-                        destination: destino,
-                        key: googleMapsApiKey
-                    }
-                }
-            );
+    private createErrorResponse(
+        code: string,
+        description: string
+    ): RideEstimateErrorResponse {
+        return {
+            error_code: code,
+            error_description: description
+        };
+    }
 
-            const route = response.data.routes[0];
-            const leg = route.legs[0];
-            const distance = leg.distance.value;
-            const duration = leg.duration.text;
-            const startLocation = leg.start_location;
-            const endLocation = leg.end_location;
+    private async getAvailableDrivers(distance: number): Promise<Driver[]> {
+        const [results]: [DriverRow[], any] = await pool.query<DriverRow[]>(
+            "SELECT * FROM drivers WHERE km_tax <= ?",
+            [distance / 1000]
+        );
 
-            const [results]: [Driver[], any] = await pool.query<Driver[]>(
-                "SELECT * FROM drivers WHERE km_tax <= ?",
-                [distance / 1000]
-            );
-            const availableDrivers = results
-                .map((driver) => ({
-                    id: driver.id,
-                    name: driver.name,
-                    description: driver.description,
-                    car: driver.car,
+        return results
+            .map((driver) => ({
+                id: driver.id,
+                name: driver.name,
+                description: driver.description,
+                vehicle: driver.vehicle,
+                review: {
                     rating: driver.avaliation,
-                    totalCost: (distance / 1000) * driver.km_tax
-                }))
-                .sort((a, b) => a.totalCost - b.totalCost);
+                    comment: driver.comment
+                },
+                value: (distance / 1000) * driver.value
+            }))
+            .sort((a, b) => a.value - b.value);
+    }
 
-            res.send({
-                startLocation: {
-                    lat: startLocation.lat,
-                    lng: startLocation.lng
+    private validateRequest({
+        customer_id,
+        origin,
+        destination
+    }: RideEstimateRequest): string | null {
+        if (!origin || !destination || !customer_id) {
+            return "Origem, Destino e ID do cliente são obrigatórios.";
+        }
+        if (origin === destination) {
+            return "Origem e Destino não podem ser iguais.";
+        }
+        return null;
+    }
+
+    private async fetchRoute(
+        origin: string,
+        destination: string
+    ): Promise<GoogleMapsResponse> {
+        console.log("Fetching route...");
+        const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+        const response = await axios.get<GoogleMapsResponse>(
+            `https://maps.googleapis.com/maps/api/directions/json`,
+            {
+                params: {
+                    origin,
+                    destination,
+                    key: googleMapsApiKey
+                }
+            }
+        );
+        console.log("Route fetched:", response.data);
+        return response.data;
+    }
+
+    public async estimate(req: Request, res: Response): Promise<void> {
+        console.log("Received estimate request:", req.body);
+
+        const { customer_id, origin, destination }: RideEstimateRequest =
+            req.body;
+
+        const validationError = this.validateRequest({
+            customer_id,
+            origin,
+            destination
+        });
+        if (validationError) {
+            const errorResponse = this.createErrorResponse(
+                "INVALID_DATA",
+                validationError
+            );
+            res.status(400).send(errorResponse);
+            return;
+        }
+
+        try {
+            const routeData = await this.fetchRoute(origin, destination);
+            const { routes } = routeData;
+            const { legs } = routes[0];
+            const { distance, duration, start_location, end_location } =
+                legs[0];
+
+            const availableDrivers = await this.getAvailableDrivers(
+                distance.value
+            );
+
+            const responseBody: RideEstimateResponse = {
+                origin: {
+                    latitude: start_location.lat,
+                    longitude: start_location.lng
                 },
-                endLocation: {
-                    lat: endLocation.lat,
-                    lng: endLocation.lng
+                destination: {
+                    latitude: end_location.lat,
+                    longitude: end_location.lng
                 },
-                distance: distance,
-                duration: duration,
-                availableDrivers: availableDrivers,
-                googleResponse: route
-            });
+                distance: distance.value,
+                duration: duration.text,
+                options: availableDrivers,
+                routeResponse: routes[0]
+            };
+
+            console.log("Sending response:", responseBody);
+            res.status(200).send(responseBody);
         } catch (error) {
             console.error(error);
-            res.status(500).send({
-                error: "Erro ao calcular a rota ou buscar motoristas."
-            });
+            const errorResponse = this.createErrorResponse(
+                "SERVER_ERROR",
+                "Erro ao calcular a rota ou buscar motoristas."
+            );
+            res.status(500).send(errorResponse);
         }
     }
 }
