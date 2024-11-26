@@ -9,6 +9,7 @@ import {
     RideEstimateRequest,
     RideEstimateResponse
 } from "../interfaces/rideInterfaces";
+import { RowDataPacket } from "mysql2";
 
 class RideController {
     private createErrorResponse(
@@ -22,23 +23,25 @@ class RideController {
     }
 
     private async getAvailableDrivers(distance: number): Promise<Driver[]> {
-        const [results]: [DriverRow[], any] = await pool.query<DriverRow[]>(
+        const [results] = await pool.query<RowDataPacket[]>(
             "SELECT * FROM drivers"
         );
+        const drivers = results as DriverRow[];
 
-        return results
+        return drivers
             .map((driver) => ({
                 id: driver.id,
                 name: driver.name,
                 description: driver.description,
                 vehicle: driver.vehicle,
                 review: {
-                    rating: driver.avaliation,
+                    rating: driver.rating,
                     comment: driver.comment
                 },
-                value: (distance / 1000) * driver.km_tax
+
+                km_tax: driver.km_tax
             }))
-            .sort((a, b) => a.value - b.value);
+            .sort((a, b) => a.km_tax - b.km_tax);
     }
 
     private validateRequest({

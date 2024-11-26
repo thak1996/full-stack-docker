@@ -1,5 +1,4 @@
-import mysql from "mysql2/promise";
-import { DriverRow } from "./interfaces/rideInterfaces";
+import mysql, { RowDataPacket } from "mysql2/promise";
 
 const pool = mysql.createPool({
     host: "mysql",
@@ -15,10 +14,11 @@ const pool = mysql.createPool({
 const createDriversTable = async () => {
     const connection = await pool.getConnection();
     try {
-        const [rows]: [DriverRow[], any] = await connection.query(
+        const [rows]: [RowDataPacket[], any] = await connection.query(
             "SHOW TABLES LIKE 'drivers'"
         );
-        if (rows.length === 0) {
+        const tables = rows as RowDataPacket[];
+        if (tables.length === 0) {
             await connection.query(`
                 CREATE TABLE drivers (
                     id INT AUTO_INCREMENT PRIMARY KEY,

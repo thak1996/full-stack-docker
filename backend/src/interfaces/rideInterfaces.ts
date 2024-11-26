@@ -1,19 +1,17 @@
-import { RowDataPacket } from "mysql2";
-
 export interface RideEstimateRequest {
     customer_id: string;
     origin: string;
     destination: string;
 }
 
-export interface DriverRow extends RowDataPacket {
+export interface DriverRow {
     id: number;
     name: string;
     description: string;
     vehicle: string;
     rating: number;
     comment: string;
-    value: number;
+    km_tax: number;
 }
 
 export type Driver = {
@@ -25,7 +23,7 @@ export type Driver = {
         rating: number;
         comment: string;
     };
-    value: number;
+    km_tax: number;
 };
 
 export interface RideEstimateResponse {
