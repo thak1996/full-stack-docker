@@ -1,7 +1,7 @@
 import React from "react";
 import GlobalStyles from "./styles/GlobalStyles";
 import { AppProvider } from "./context/AppContext";
-import HomePage from "./pages/Home/HomePage";
+import HomePage from "./pages/HomePage";
 
 const App: React.FC = () => {
     return (

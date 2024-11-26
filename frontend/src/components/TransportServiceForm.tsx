@@ -1,63 +1,26 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import { SearchCar } from "../interface/searchCar";
-import apiService from "../services/apiService";
+import { RideEstimateRequest } from "../interface/rideEstimate";
+import {
+    ErrorMessage,
+    FormContainer,
+    FormGroup,
+    FormTitle,
+    Input,
+    Label,
+    SubmitButton
+} from "../styles/transportServiceFormStyles";
 
-const FormContainer = styled.div`
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #fff;
-`;
+interface TransportServiceFormProps {
+    onEstimate: (data: RideEstimateRequest) => void;
+}
 
-const FormTitle = styled.h2`
-    text-align: center;
-`;
-
-const FormGroup = styled.div`
-    margin-bottom: 15px;
-`;
-
-const Label = styled.label`
-    display: block;
-    margin-bottom: 5px;
-`;
-
-const Input = styled.input`
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin: 0;
-`;
-
-const ErrorMessage = styled.p`
-    color: red;
-    text-align: center;
-`;
-
-const SubmitButton = styled.button`
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &:hover {
-        background-color: #0056b3;
-    }
-`;
-
-const TransportServiceForm: React.FC = () => {
-    const [formData, setFormData] = useState<SearchCar>({
-        id: null,
-        origem: "",
-        destino: ""
+const TransportServiceForm: React.FC<TransportServiceFormProps> = ({
+    onEstimate
+}) => {
+    const [formData, setFormData] = useState<RideEstimateRequest>({
+        customer_id: "",
+        origin: "",
+        destination: ""
     });
     const [error, setError] = useState<string>("");
 
@@ -66,30 +29,21 @@ const TransportServiceForm: React.FC = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
 
-        if (!formData.origem || !formData.destino) {
+        if (!formData.origin || !formData.destination) {
             setError("Origem e Destino são obrigatórios.");
             return;
         }
 
-        if (formData.origem === formData.destino) {
+        if (formData.origin === formData.destination) {
             setError("Origem e Destino não podem ser iguais.");
             return;
         }
 
-        try {
-            const response = await apiService.fetchHomeData();
-            console.log(response);
-        } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message);
-            } else {
-                setError("Um erro desconhecido ocorreu");
-            }
-        }
+        onEstimate(formData);
     };
 
     return (
@@ -100,8 +54,8 @@ const TransportServiceForm: React.FC = () => {
                     <Label>ID:</Label>
                     <Input
                         type="text"
-                        name="id"
-                        value={formData.id || ""}
+                        name="customer_id"
+                        value={formData.customer_id}
                         onChange={handleChange}
                         required
                     />
@@ -110,8 +64,8 @@ const TransportServiceForm: React.FC = () => {
                     <Label>Origem:</Label>
                     <Input
                         type="text"
-                        name="origem"
-                        value={formData.origem}
+                        name="origin"
+                        value={formData.origin}
                         onChange={handleChange}
                         required
                     />
@@ -120,8 +74,8 @@ const TransportServiceForm: React.FC = () => {
                     <Label>Destino:</Label>
                     <Input
                         type="text"
-                        name="destino"
-                        value={formData.destino}
+                        name="destination"
+                        value={formData.destination}
                         onChange={handleChange}
                         required
                     />
