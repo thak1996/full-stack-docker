@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
-import homeRoutes from "./routes/homeRoutes";
+import messageRoutes from "./routes/messageRoutes";
 import testRoutes from "./routes/testRoutes";
 
 class App {
     public app: express.Application;
+    private apiPrefix: string = "/api/v1";
 
     constructor() {
         this.app = express();
@@ -18,8 +19,8 @@ class App {
     }
 
     private routes(): void {
-        this.app.use("/home", homeRoutes);
-        this.app.use("/", testRoutes);
+        this.app.use(`${this.apiPrefix}/message`, messageRoutes);
+        this.app.use(`${this.apiPrefix}/test`, testRoutes);
     }
 
     public start(port: number): void {
