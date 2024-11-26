@@ -62,14 +62,12 @@ class RideController {
         origin: string,
         destination: string
     ): Promise<GoogleMapsResponse> {
-        console.log("Fetching route...");
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!googleMapsApiKey) {
             throw new Error(
                 "A chave da API do Google Maps (GOOGLE_MAPS_API_KEY) não está configurada."
             );
         }
-        console.log("Google Maps API Key:", googleMapsApiKey);
         const response = await axios.get<GoogleMapsResponse>(
             `https://maps.googleapis.com/maps/api/directions/json`,
             {
@@ -80,13 +78,10 @@ class RideController {
                 }
             }
         );
-        console.log("Route fetched:", response.data);
         return response.data;
     }
 
     public async estimate(req: Request, res: Response): Promise<void> {
-        console.log("Received estimate request:", req.body);
-
         const { customer_id, origin, destination }: RideEstimateRequest =
             req.body;
 
@@ -140,8 +135,6 @@ class RideController {
                     duration: duration.text
                 }
             };
-
-            console.log("Sending response:", responseBody);
             res.status(200).send(responseBody);
         } catch (error) {
             if (error instanceof Error) {
