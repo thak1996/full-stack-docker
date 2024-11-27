@@ -78,14 +78,6 @@ const TransportServiceForm: React.FC<TransportServiceFormProps> = ({
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-
-        if (name === "origin" || name === "destination") {
-            if (value.length >= 4) {
-                console.log("Autocompletar ativado para:", value);
-            } else {
-                console.log("Autocompletar desativado.");
-            }
-        }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
