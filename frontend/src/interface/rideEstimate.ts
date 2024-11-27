@@ -33,5 +33,5 @@ export interface Driver {
         rating: number;
         comment: string;
     };
-    value: number;
+    km_tax: string;
 }

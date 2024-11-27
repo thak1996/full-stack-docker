@@ -8,6 +8,7 @@ import {
     RideEstimateRequest
 } from "../interface/rideEstimate";
 import { CenteredContainer } from "../styles/homeStyles";
+import DriverSelectionForm from "../components/DriverSelectionForm";
 
 const HomePage: React.FC = () => {
     const [rideInfo, setRideInfo] = useState<RideEstimateResponse | null>(null);
@@ -20,7 +21,6 @@ const HomePage: React.FC = () => {
         setError(null);
         try {
             const response = await apiService.estimateRide(data);
-            console.log(response);
             setRideInfo(response);
             setCurrentStep(1);
         } catch (error) {
@@ -41,22 +41,23 @@ const HomePage: React.FC = () => {
         setCurrentStep(currentStep - 1);
     };
 
+    const handleDriverSelection = (selectedDriverId: number) => {
+        console.log("Selected Driver ID:", selectedDriverId);
+    };
+
     return (
         <CenteredContainer>
             {loading && <Loading />}
             {currentStep === 0 && (
                 <TransportServiceForm onEstimate={handleEstimate} />
             )}
-            {currentStep === 1 && (
-                <div>
-                    <h2>Resumo da Estimativa</h2>
-                    {rideInfo && (
-                        <p>
-                            Informações da corrida: {JSON.stringify(rideInfo)}
-                        </p>
-                    )}
-                    <button onClick={handlePreviousStep}>Voltar</button>
-                </div>
+            {currentStep === 1 && rideInfo && (
+                <DriverSelectionForm
+                    onSubmit={handleDriverSelection}
+                    onPrevious={handlePreviousStep}
+                    rideInfo={rideInfo}
+                    drivers={rideInfo?.options || []}
+                />
             )}
             {error && <Error message={error} onClose={handleCloseError} />}
         </CenteredContainer>
